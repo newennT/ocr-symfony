@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello AuthorController!{% endblock %}
+{% block title %}Tous les auteurs{% endblock %}
 
 {% block body %}
 <style>
@@ -9,12 +9,29 @@
 </style>
 
 <div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    <div class="py-5">
+        <h1>Liste d'auteurs</h1>
+        <ul class="list-group list-group-flush">
+        {% for author in authors %}
+            <div class="card mb-1">
+                <div class="card-body">
+                    <div class="card-title d-flex justify-content-between">
+                        <a href="{{ path('app_admin_author_show', {id: author.id}) }}" class="stretched-link link-dark">
+                            <h4 class="mb-1">{{ author.name }}</h4>
+                        </a>
+                        <small class="text-muted">Identifiant : {{ author.id }}</small>
+                    </div>
+                </div>
+            
+            </div>
+        {% else %}
+            <li>Aucun enregistrement</li>
+        {% endfor %}
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/app/src/Controller/AuthorController.php</code></li>
-        <li>Your template at <code>/app/templates/author/index.html.twig</code></li>
-    </ul>
+        </ul>
+
+        {{ pagerfanta(authors) }}
+
+    </div>
 </div>
 {% endblock %}
