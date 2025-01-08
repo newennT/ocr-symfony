@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
 class Book
@@ -17,6 +18,8 @@ class Book
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Assert\NotBlank()]
+    #[Assert\Length(min: 1)]
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
@@ -26,19 +29,28 @@ class Book
     #[ORM\ManyToMany(targetEntity: Author::class, inversedBy: 'books')]
     private Collection $authors;
 
+    #[Assert\NotBlank()]
+    #[Assert\Isbn(type: 'isbn13')]
     #[ORM\Column(length: 255)]
     private ?string $isbn = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank()]
+    #[Assert\Url()]
     private ?string $cover = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank()]
     private ?\DateTimeImmutable $editedAt = null;
 
+    #[Assert\NotBlank()]
+    #[Assert\Length(min: 20)]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $plot = null;
 
     #[ORM\Column]
+    #[Assert\Type(type: 'integer')]
+    #[Assert\NotBlank()]
     private ?int $pageNumber = null;
 
     #[ORM\ManyToOne(inversedBy: 'books')]

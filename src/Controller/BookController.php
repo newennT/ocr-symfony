@@ -8,6 +8,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\Book;
 use App\Form\BookType;
 use Symfony\Component\HttpFoundation\Request;
+use Doctrine\ORM\EntityManagerInterface;
 
 #[Route('/admin/book')]
 class BookController extends AbstractController
@@ -21,14 +22,16 @@ class BookController extends AbstractController
     }
 
     #[Route('/new', name: 'app_admin_book_new', methods: ['GET', 'POST'])]
-    public function new(Request $request): Response
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $author = new Book();
-        $form = $this->createForm(BookType::class, $author);
+        $book = new Book();
+        $form = $this->createForm(BookType::class, $book);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid())
         {
+            $entityManager->persist($book);
+            $entityManager->flush();
             return $this->redirectToRoute('app_admin_book_new');
         }
 

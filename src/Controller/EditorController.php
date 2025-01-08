@@ -8,6 +8,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\Editor;
 use App\Form\EditorType;
 use Symfony\Component\HttpFoundation\Request;
+use Doctrine\ORM\EntityManagerInterface;
 
 #[Route('/admin/editor')]
 class EditorController extends AbstractController
@@ -21,14 +22,17 @@ class EditorController extends AbstractController
     }
 
     #[Route('/new', name: 'app_admin_editor_new', methods: ['GET', 'POST'])]
-    public function new(Request $request): Response
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $author = new Editor();
-        $form = $this->createForm(EditorType::class, $author);
+        $editor = new Editor();
+        $form = $this->createForm(EditorType::class, $editor);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid())
         {
+            $entityManager->persist($editor);
+            $entityManager->flush();
+            
             return $this->redirectToRoute('app_admin_editor_new');
         }
 
