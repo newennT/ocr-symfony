@@ -19,57 +19,53 @@ class Book
     private ?int $id = null;
 
     #[Assert\NotBlank()]
-    #[Assert\Length(min: 1)]
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
-    /**
-     * @var Collection<int, Author>
-     */
-    #[ORM\ManyToMany(targetEntity: Author::class, inversedBy: 'books')]
-    private Collection $authors;
-
-    #[Assert\NotBlank()]
     #[Assert\Isbn(type: 'isbn13')]
+    #[Assert\NotBlank()]
     #[ORM\Column(length: 255)]
     private ?string $isbn = null;
 
-    #[ORM\Column(length: 255)]
     #[Assert\NotBlank()]
     #[Assert\Url()]
+    #[ORM\Column(length: 255)]
     private ?string $cover = null;
 
-    #[ORM\Column]
     #[Assert\NotBlank()]
+    #[ORM\Column]
     private ?\DateTimeImmutable $editedAt = null;
 
-    #[Assert\NotBlank()]
     #[Assert\Length(min: 20)]
+    #[Assert\NotBlank()]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $plot = null;
 
-    #[ORM\Column]
     #[Assert\Type(type: 'integer')]
-    #[Assert\NotBlank()]
+    #[ORM\Column]
     private ?int $pageNumber = null;
+
+    #[ORM\Column(length: 255)]
+    private ?BookStatus $status = null;
 
     #[ORM\ManyToOne(inversedBy: 'books')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Editor $editor = null;
 
-    /**
-     * @var Collection<int, Comment>
-     */
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'book', orphanRemoval: true)]
     private Collection $comments;
 
-    #[ORM\Column(length: 255)]
-    private ?BookStatus $status = null;
+    #[ORM\ManyToMany(targetEntity: Author::class, mappedBy: 'books', cascade: ['persist'])]
+    private Collection $authors;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $createdBy = null;
 
     public function __construct()
     {
-        $this->authors = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        $this->authors = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -85,30 +81,6 @@ class Book
     public function setTitle(string $title): static
     {
         $this->title = $title;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Author>
-     */
-    public function getAuthors(): Collection
-    {
-        return $this->authors;
-    }
-
-    public function addAuthor(Author $author): static
-    {
-        if (!$this->authors->contains($author)) {
-            $this->authors->add($author);
-        }
-
-        return $this;
-    }
-
-    public function removeAuthor(Author $author): static
-    {
-        $this->authors->removeElement($author);
 
         return $this;
     }
@@ -137,12 +109,12 @@ class Book
         return $this;
     }
 
-    public function getEditedAt(): ?\DateTimeInterface
+    public function getEditedAt(): ?\DateTimeImmutable
     {
         return $this->editedAt;
     }
 
-    public function setEditedAt(\DateTimeInterface $editedAt): static
+    public function setEditedAt(\DateTimeImmutable $editedAt): static
     {
         $this->editedAt = $editedAt;
 
@@ -169,6 +141,18 @@ class Book
     public function setPageNumber(int $pageNumber): static
     {
         $this->pageNumber = $pageNumber;
+
+        return $this;
+    }
+
+    public function getStatus(): ?BookStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(BookStatus $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }
@@ -215,14 +199,41 @@ class Book
         return $this;
     }
 
-    public function getStatus(): ?BookStatus
+    /**
+     * @return Collection<int, Author>
+     */
+    public function getAuthors(): Collection
     {
-        return $this->status;
+        return $this->authors;
     }
 
-    public function setStatus(BookStatus $status): static
+    public function addAuthor(Author $author): static
     {
-        $this->status = $status;
+        if (!$this->authors->contains($author)) {
+            $this->authors->add($author);
+            $author->addBook($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAuthor(Author $author): static
+    {
+        if ($this->authors->removeElement($author)) {
+            $author->removeBook($this);
+        }
+
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
 
         return $this;
     }

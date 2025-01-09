@@ -8,14 +8,14 @@ use App\Entity\Editor;
 use App\Enum\BookStatus;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class BookType extends AbstractType
 {
@@ -34,17 +34,15 @@ class BookType extends AbstractType
             ->add('status', EnumType::class, [
                 'class' => BookStatus::class,
             ])
+            ->add('editor', EntityType::class, [
+                'class' => Editor::class,
+                'choice_label' => 'name',
+            ])
             ->add('authors', EntityType::class, [
                 'class' => Author::class,
                 'choice_label' => 'name',
                 'multiple' => true,
                 'by_reference' => false,
-                'required' => false,
-            ])
-            ->add('editor', EntityType::class, [
-                'class' => Editor::class,
-                'choice_label' => 'name',
-                'required' => false,
             ])
         ;
     }

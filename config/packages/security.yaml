@@ -14,16 +14,18 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
+            stateless: false
             lazy: true
             provider: app_user_provider
             form_login:
                 login_path: app_login
                 check_path: app_login
+                default_target_path: app_home
                 enable_csrf: true
             logout:
                 path: app_logout
                 # where to redirect after logout
-                target: app_home_index
+                target: app_home
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -31,10 +33,17 @@ security:
             # https://symfony.com/doc/current/security/impersonating_user.html
             # switch_user: true
 
+    role_hierarchy:
+        ROLE_USER: ~
+        ROLE_MODERATEUR: ROLE_USER
+        ROLE_AJOUT_DE_LIVRE: ROLE_USER
+        ROLE_EDITION_DE_LIVRE: ROLE_AJOUT_DE_LIVRE
+        ROLE_ADMIN: [ROLE_MODERATEUR, ROLE_EDITION_DE_LIVRE]
+    
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/admin/author/new, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
 
 when@test:
